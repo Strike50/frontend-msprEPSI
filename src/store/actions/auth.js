@@ -1,4 +1,4 @@
-import axios from '../../axios-orders';
+import axios from '../../instance';
 
 import * as actionTypes from './actionTypes';
 
@@ -98,7 +98,7 @@ export const authCheckState = () => {
       const expirationDate = new Date(localStorage.getItem('expirationDate'));
       if (expirationDate > new Date()){
         const userId = localStorage.getItem('userId');
-        dispatch(authSuccess(token, userId));
+        dispatch(authSuccess(userId));
         dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime())/1000));
       } else {
         dispatch(logout());
