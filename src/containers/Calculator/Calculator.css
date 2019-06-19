@@ -1,0 +1,17 @@
+.card-panel-perso {
+    cursor: pointer;
+    height: 150px;
+    vertical-align: middle;
+}
+
+.card-panel-perso form {
+    display: none;
+}
+
+.card-panel-perso button {
+    cursor: pointer;
+}
+
+.card-panel-perso label {
+    color: white;
+}
