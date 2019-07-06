@@ -1,4 +1,4 @@
-import axios from '../../axios-orders';
+import axios from '../../instance';
 
 import * as actionTypes from './actionTypes';
 

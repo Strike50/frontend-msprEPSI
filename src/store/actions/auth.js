@@ -39,41 +39,19 @@ export const checkAuthTimeout = (expirationTime) => {
   }
 };
 
-export const auth = (email, password) => {
+export const auth = (email, password, isSignup) => {
   return dispatch => {
     dispatch(authStart());
+    const url = isSignup ? '/user' : '/auth/login';
     const bodyFormData = new FormData();
-    bodyFormData.set('username', email);
+    bodyFormData.set('email', email);
     bodyFormData.set('password', password);
-    axios({
-      method: 'post',
-      url: '/login',
-      data: bodyFormData,
-      config: { headers: {'Content-Type': 'application/x-www-form-urlencoded' }}
-    })
-      .then(response => {
-        console.log(response);
-        dispatch(authSuccess(response.data));
-      })
-      .catch(err => {
-        console.log(err);
-        dispatch(authFail(err.response.data.error));
-      })
-  };
-};
-
-export const signUp = (firstName, lastName, email, password) => {
-  return dispatch => {
-    dispatch(authStart());
-    const authData= {
-      firstname: firstName,
-      lastname: lastName,
-      email: email,
-      password: password
+    const authData = JSON.stringify({ email: email, password: password });
+    const config = {
+      headers: {'content-type': 'application/json', 'accept': '*/*'}
     };
-    axios.post('/userController/signUp',authData)
+    axios.post(url, bodyFormData, config)
       .then(response => {
-        console.log(response);
         dispatch(authSuccess(response.data));
       })
       .catch(err => {

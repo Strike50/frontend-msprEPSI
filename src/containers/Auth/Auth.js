@@ -9,11 +9,11 @@ import classes from './Auth.module.css';
 import { updateObject,checkValidity } from "../../shared/utility";
 import * as actions from '../../store/actions/index';
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
-import axios from "../../axios-orders";
+import axios from "../../instance";
 
 class Auth extends Component {
   state = {
-    controlsLOG: {
+    controls: {
       email: {
         elementType: 'input',
         elementConfig: {
@@ -45,105 +45,23 @@ class Auth extends Component {
         touched: false
       }
     },
-    controlsSIGN: {
-      firstName: {
-        elementType: 'input',
-        elementConfig: {
-          type: 'text',
-          placeholder: 'First name'
-        },
-        value: '',
-        name: 'firstName',
-        validation: {
-          required: true,
-          isEmail: false
-        },
-        valid: false,
-        touched: false
-      },
-      lastName: {
-        elementType: 'input',
-        elementConfig: {
-          type: 'text',
-          placeholder: 'Last name'
-        },
-        value: '',
-        name: 'lastName',
-        validation: {
-          required: true,
-          isEmail: false
-        },
-        valid: false,
-        touched: false
-      },
-      email: {
-        elementType: 'input',
-        elementConfig: {
-          type: 'email',
-          placeholder: 'Mail address'
-        },
-        value: '',
-        name: 'email',
-        validation: {
-          required: true,
-          isEmail: true
-        },
-        valid: false,
-        touched: false
-      },
-      password: {
-        elementType: 'input',
-        elementConfig: {
-          type: 'password',
-          placeholder: 'Password'
-        },
-        value: '',
-        name: 'password',
-        validation: {
-          required: true,
-          minLength: 6
-        },
-        valid: false,
-        touched: false
-      }
-    },
     isSignup: true
   };
 
   inputChangedHandler = (event, controlName) => {
-    if (this.state.isSignup) {
-    const updatedControls = updateObject(this.state.controlsSIGN,{
-      [controlName]: updateObject(this.state.controlsSIGN[controlName],{
-        value: event.target.value,
-        valid: checkValidity(event.target.value, this.state.controlsSIGN[controlName].validation),
-        touched: true
-      })
-    });
-    this.setState({controlsSIGN : updatedControls});
-    } else {
-      const updatedControls = updateObject(this.state.controlsLOG,{
-        [controlName]: updateObject(this.state.controlsLOG[controlName],{
+    const updatedControls = updateObject(this.state.controls,{
+        [controlName]: updateObject(this.state.controls[controlName],{
           value: event.target.value,
-          valid: checkValidity(event.target.value, this.state.controlsLOG[controlName].validation),
+          valid: checkValidity(event.target.value, this.state.controls[controlName].validation),
           touched: true
         })
       });
-      this.setState({controlsLOG : updatedControls});
-    }
+      this.setState({controls : updatedControls});
   };
 
   submitHandler = event => {
     event.preventDefault();
-    if (this.state.isSignup) {
-      this.props.onSignUp(
-        this.state.controlsSIGN.firstName.value,
-        this.state.controlsSIGN.lastName.value,
-        this.state.controlsSIGN.email.value,
-        this.state.controlsSIGN.password.value,
-        );
-    } else {
-      this.props.onAuth(this.state.controlsLOG.email.value, this.state.controlsLOG.password.value);
-    }
+    this.props.onAuth(this.state.controls.email.value, this.state.controls.password.value, this.state.isSignup);
   };
 
   switchAuthModeHandler = () => {
@@ -161,20 +79,11 @@ class Auth extends Component {
   render() {
     const formElementsArray = [];
     let key = 0;
-    if (!this.state.isSignup) {
-      for (key in this.state.controlsLOG) {
-        formElementsArray.push({
-          id: key,
-          config: this.state.controlsLOG[key],
-        });
-      }
-    } else {
-      for (key in this.state.controlsSIGN) {
-        formElementsArray.push({
-          id: key,
-          config: this.state.controlsSIGN[key],
-        });
-      }
+    for (key in this.state.controls) {
+      formElementsArray.push({
+        id: key,
+        config: this.state.controls[key],
+      });
     }
     let form = formElementsArray.map(formElement => (
         <Input
@@ -189,7 +98,6 @@ class Auth extends Component {
           changed={(event) => this.inputChangedHandler(event, formElement.id)}
         />
       ));
-
 
     if (this.props.loading){
       form = <Spinner />;
@@ -244,8 +152,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onAuth: (email, pass) => dispatch(actions.auth(email, pass)),
-    onSignUp: (firstName, lastName, email, pass) => dispatch(actions.signUp(firstName, lastName, email, pass)),
+    onAuth: (email, pass, isSignup) => dispatch(actions.auth(email, pass, isSignup)),
     onSetAuthRedirectPath: () => dispatch(actions.setAuthRedirectPath('/'))
   }
 };
